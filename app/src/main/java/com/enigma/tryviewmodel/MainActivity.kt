@@ -5,27 +5,35 @@ import android.os.Bundle
 import androidx.lifecycle.ViewModelProvider
 import com.enigma.tryviewmodel.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnNavigationListener {
     lateinit var binding: ActivityMainBinding
-    lateinit var viewmodel: MainActivityViewModel
+    lateinit var helloFragment: HelloFragment
+    lateinit var registrationFragment: RegistrationFragment
+    lateinit var viewModel: MainActivityViewModel
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        initViewModel()
-        binding.apply {
-            helloTextView.text = viewmodel.helloWord
-            helloButton.setOnClickListener {
-                viewmodel.sayHello("hello")
-                helloTextView.text = viewmodel.helloWord
-            }
+        registrationFragment = RegistrationFragment.newInstance()
+        helloFragment = HelloFragment.newInstance()
+        viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
+        viewModel.helloWord?.let {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container_view_tag, helloFragment).commit()
+        } ?: let {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container_view_tag, registrationFragment).commit()
         }
     }
 
-    private fun initViewModel() {
-        viewmodel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
+    override fun onHello() {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container_view_tag, helloFragment)
+            .commit()
     }
 }
+
+
 
